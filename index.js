@@ -10,29 +10,31 @@ $(document).ready(function() {
 			$('#generation').text('Generation: ' + Learn.generation);
 			$('#genome').text('Genome: #' + Learn.genome + ' / ' + Learn.genomeUnits);
 			$('#mutation').text('Mutation Prob: ' + Learn.mutationProb);
-			$('#fitness').text('Fitness: ' + Math.round(runner.distanceRan));
-			$('#fittest').text('Current Fittest: ' + Math.round(Learn.currentFittest));
-			$('#prevFittest').text('Previous Fittest: ' + Math.round(Learn.prevFittest));
+			$('#fitness').text('Fitness: ' + Math.ceil(runner.distanceRan));
+			$('#fittest').text('Current Fittest: ' + Math.ceil(Learn.currentFittest));
+			$('#prevFittest').text('Previous Fittest: ' + Math.ceil(Learn.prevFittest));
 			$("#genomes").empty();
 			Learn.genomes.forEach(function(genome) {
-				$("#genomes").append('<li>Genome #'+Learn.genomes.indexOf(genome)+': '+Math.round(genome.fitness)+'</li>');
+				$("#genomes").append('<li>Genome #'+(Learn.genomes.indexOf(genome)+1)+': '+Math.ceil(genome.fitness)+'</li>');
 			});
 			if(runner.horizon.obstacles.length>0) {
-				$('#distance').text('Distance: ' + Math.round(runner.horizon.obstacles[0].xPos));
-				$('#size').text('Size: ' + Math.round(150-runner.horizon.obstacles[0].yPos));
+				$('#distance').text('Distance: ' + Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos));
+				$('#size').text('Size: ' + Math.ceil(150-runner.horizon.obstacles[0].yPos));
 			} else {
 				$('#distance').text('Distance: NaN');
 				$('#size').text('Size: NaN');
 			}
-			$('#speed').text('Speed: ' + Math.round(runner.currentSpeed));
-			$('#output').text('Output: ' + Learn.currentOutput);
-			$('#action').text('Action: ' + getDiscreteStateName(Learn.currentOutput));
+			$('#speed').text('Speed: ' + Math.ceil(runner.currentSpeed));
+			$('#output').text('Output: ' + currentOutput);
+			$('#action').text('Action: ' + getDiscreteStateName(currentOutput));
 
 			scrollDownLog();
-		}, 100);
+
+		}, 1000/15);	//15fps
 
 });
 
+//Get action with the value
 var getDiscreteStateName = function(value) {
 	if (value < 0.45) {
     return "duck";
@@ -43,11 +45,13 @@ var getDiscreteStateName = function(value) {
   return "none";
 }
 
+//always scroll to bottom on logs
 var scrollDownLog = function (){
     var element = document.getElementById("logs");
     element.scrollTop = element.scrollHeight;
 }
 
+//write log function
 var prevMsgs = "";
 var dotCount = 1;
 var write = function(msgs) {
@@ -66,3 +70,4 @@ var write = function(msgs) {
 	}
 	prevMsgs = msgs;
 }
+Math.ceil

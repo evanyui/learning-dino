@@ -4,31 +4,27 @@ var	Network = synaptic.Network,
 
 // $(document).ready(function() {
 //     $(this).on('keydown', function(event) {
-//         if (event.keyCode == 13) {
-// 						var e = $.Event("keydown", { keyCode: 32});
-// 						runner.onKeyDown(e);
+//         if (event.keyCode == 13) { //enter pressed
+//
 //         }
 //     });
 // })
 
-
-
+//TODO: (1) Neural network change too smaller.
+//			(2) Genomes UI display bug: displayed 4 prev fittest genomes. have to be cleared.
+//			(3) Implement check experience gain.
+//			(4) Consider distance difference include sprite size.
 var Learn = {
 
-  // Array of networks for current Genomes
-  // (Genomes will be added the key `fitness`)
+  // Array of networks for generation ith Genomes
   genomes: [],
 
-  // Current state of learning [STOP, LEARNING]
-  // state: 'STOP',
-
-  // Current genome/generation tryout
+  // Current runnning genome/generation/fittest so far/fittest from last generation
   genome: 0,
   generation: 0,
-
 	currentFittest: 0,
 	prevFittest: 0,
-	currentOutput: 0,
+
   // Set this, to verify genome experience BEFORE running it
   shouldCheckExperience: false,
 
@@ -46,10 +42,9 @@ $(document).ready(function() {
 	  Learn.mutationProb = mutationProb;
 	}
 
-	// Build genomes before calling executeGeneration.
+	// Build initial genomes
 	Learn.startLearning = function () {
 		write("Learn Start");
-	  // Build genomes if needed
 	  while (Learn.genomes.length < Learn.genomeUnits) {
 	    Learn.genomes.push(Learn.buildGenome(3, 1));
 	  }
@@ -57,21 +52,22 @@ $(document).ready(function() {
 	  Learn.executeGeneration();
 	}
 
+	//make neural networks
 	Learn.buildGenome = function (inputs, outputs) {
-		write("Initializing startig genomes...");
+		write("Building neural network...");
 	  var network = new Architect.Perceptron(inputs, 4, 4, outputs);
 
 	  return network;
 	}
 
-	// Given the entire generation of genomes (An array),
-	// applyes method `executeGenome` for each element.
-	// After all elements have completed executing:
+	// Given the the array genomes,
+	// apply method `executeGenome` for each genome.
+	// After all genomes have completed, execute:
 	//
-	// 1) Select best genomes
+	// 1) Select best genomes (Choose 4)
 	// 2) Does cross over (except for 2 genomes)
-	// 3) Does Mutation-only on remaining genomes
-	// 4) Execute generation (recursivelly)
+	// 3) Does Mutation-only on remaining genomes and fill up the genomes for next generation
+	// 4) Execute next generation
 	Learn.executeGeneration = function (){
 
 	  Learn.generation++;
@@ -88,7 +84,7 @@ $(document).ready(function() {
 	    // Copy best genomes
 	    var bestGenomes = _.clone(Learn.genomes);
 			prevFittest = bestGenomes[0].fitness;
-	    // Cross Over ()
+	    // Cross Over
 	    while (Learn.genomes.length < Learn.genomeUnits - 2) {
 	      // Get two random Genomes
 	      var genA = _.sample(bestGenomes).toJSON();
@@ -143,7 +139,6 @@ $(document).ready(function() {
 	Learn.mutate = function (net){
 	  // Mutate
 	  Learn.mutateDataKeys(net.neurons, 'bias', Learn.mutationProb);
-
 	  Learn.mutateDataKeys(net.connections, 'weight', Learn.mutationProb);
 
 	  return net;
@@ -151,7 +146,7 @@ $(document).ready(function() {
 
 	// Given an Array of objects with key `key`,
 	// and also a `mutationRate`, randomly Mutate
-	// the value of each key, if random value is
+	// the value of each key if random value is
 	// lower than mutationRate for each element.
 	Learn.mutateDataKeys = function (a, key, mutationRate){
 	  for (var k = 0; k < a.length; k++) {
@@ -164,7 +159,7 @@ $(document).ready(function() {
 	  }
 	}
 
-	// SPECIFIC to Neural Network.
+	// Mating genomes. Crossing their Neural Network.
 	// Those two methods convert from JSON to Array, and from Array to JSON
 	Learn.crossOver = function (netA, netB) {
 	  // Swap (50% prob.)
@@ -204,7 +199,7 @@ $(document).ready(function() {
 	}
 
 	// Waits the game to end, and start a new one, then:
-	// 1) Set's listener for sensorData
+	// 1) Take input data from game
 	// 2) On data read, applies the neural network, and
 	//    set it's output
 	// 3) When the game has ended and compute the fitness
@@ -212,7 +207,6 @@ $(document).ready(function() {
 		write("-------------------------------------");
 		write("Execute genome #" + (Learn.genomes.indexOf(genome)+1));
 	  Learn.genome = Learn.genomes.indexOf(genome) + 1;
-	  // Learn.ui.logger.log('Executing genome '+Learn.genome);
 
 	  // Check if genome has AT LEAST some experience
 	  // if (Learn.shouldCheckExperience) {
@@ -230,7 +224,8 @@ $(document).ready(function() {
 				write("Finish");
 				clearInterval(computation);
 
-				genome.fitness = runner.distanceRan;
+				//fitness is the distance trex ran in pixel
+				genome.fitness = runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan));
 				write("Result: " + genome.fitness);
 
 				if(genome.fitness > Learn.currentFittest) {
@@ -247,8 +242,8 @@ $(document).ready(function() {
 			var inputs;
 			if(runner.horizon.obstacles.length>0) {
 				inputs = [
-					runner.horizon.obstacles[0].xPos,
-					150-runner.horizon.obstacles[0].yPos,
+					Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos),
+					Math.ceil(150-runner.horizon.obstacles[0].yPos),
 					runner.currentSpeed
 				];
 			} else {
@@ -258,12 +253,10 @@ $(document).ready(function() {
 					runner.currentSpeed
 				];
 			}
-			// write(inputs);
 			// Apply to network
 			var outputs = genome.activate(inputs);
-			currentOutput = outputs[0];
 			setGameOutput(outputs[0]);
-		}, 100);
+		}, 1000/60);
 
 	}
 
@@ -290,9 +283,4 @@ $(document).ready(function() {
 	//   // Count states, and return true if greater than 1
 	//   return _.keys(outputs).length > 1;
 	// }
-
-	// setInterval(function() {
-  //   // Once reloaded we wait 0.5sec for it to let us start the game with a space.
-  //  	jQuery.event.trigger({ type : 'keypress', which : 32 });
-  // }, 500);
 });

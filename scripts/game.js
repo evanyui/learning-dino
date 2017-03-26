@@ -659,7 +659,6 @@
          * @param {Event} e
          */
         onKeyDown: function (e) {
-						// console.log(e);
             // Prevent native page scrolling whilst tapping on mobile.
             if (IS_MOBILE && this.playing) {
                 e.preventDefault();
