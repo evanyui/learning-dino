@@ -10,7 +10,7 @@ $(document).ready(function() {
 			$('#generation').text('Generation: ' + Learn.generation);
 			$('#genome').text('Genome: #' + Learn.genome + ' / ' + Learn.genomeUnits);
 			$('#mutation').text('Mutation Prob: ' + Learn.mutationProb*100 + '%');
-			$('#fitness').text('Fitness: ' + Math.ceil(runner.distanceRan));
+			$('#fitness').text('Fitness: ' + runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan)));
 			$('#fittest').text('Current Fittest: ' + Math.ceil(Learn.currentFittest));
 			$('#prevFittest').text('Previous Fittest: ' + Math.ceil(Learn.prevFittest));
 			$("#genomes").empty();
