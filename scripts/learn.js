@@ -11,9 +11,7 @@ var	Network = synaptic.Network,
 // })
 
 //TODO: (1) Neural network change too smaller.
-//			(2) Genomes UI display bug: displayed 4 prev fittest genomes. have to be cleared.
-//			(3) Implement check experience gain.
-//			(4) Consider distance difference include sprite size.
+//			(2) Implement check experience gain.
 var Learn = {
 
   // Array of networks for generation ith Genomes
@@ -72,7 +70,7 @@ $(document).ready(function() {
 
 	  Learn.generation++;
 		write("=====================================");
-		write("Execute generation " + Learn.generation);
+		write("<b>Execute generation </b>" + Learn.generation);
 		Learn.currentFittest = 0;
 	  Learn.genome = 0;
 
@@ -84,6 +82,10 @@ $(document).ready(function() {
 	    // Copy best genomes
 	    var bestGenomes = _.clone(Learn.genomes);
 			prevFittest = bestGenomes[0].fitness;
+
+			// For UI purposes, clear the genomes
+			Learn.genomes = [];
+
 	    // Cross Over
 	    while (Learn.genomes.length < Learn.genomeUnits - 2) {
 	      // Get two random Genomes
@@ -205,7 +207,7 @@ $(document).ready(function() {
 	// 3) When the game has ended and compute the fitness
 	Learn.executeGenome = function (genome, next){
 		write("-------------------------------------");
-		write("Execute genome #" + (Learn.genomes.indexOf(genome)+1));
+		write("<b>Execute genome #" + (Learn.genomes.indexOf(genome)+1) + "</b>");
 	  Learn.genome = Learn.genomes.indexOf(genome) + 1;
 
 	  // Check if genome has AT LEAST some experience
@@ -221,7 +223,7 @@ $(document).ready(function() {
 
 			if(!runner.playing || runner.crashed) {
 
-				write("Finish");
+				write("Ended");
 				clearInterval(computation);
 
 				//fitness is the distance trex ran in pixel
@@ -242,7 +244,8 @@ $(document).ready(function() {
 			var inputs;
 			if(runner.horizon.obstacles.length>0) {
 				inputs = [
-					Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos),
+					// Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos),
+					Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos)-runner.tRex.SPRITE_SIZE,
 					Math.ceil(150-runner.horizon.obstacles[0].yPos),
 					runner.currentSpeed
 				];

@@ -18,13 +18,13 @@ $(document).ready(function() {
 				$("#genomes").append('<li>Genome #'+(Learn.genomes.indexOf(genome)+1)+': '+Math.ceil(genome.fitness)+'</li>');
 			});
 			if(runner.horizon.obstacles.length>0) {
-				$('#distance').text('Distance: ' + Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos));
+				$('#distance').text('Distance: ' + Math.ceil(runner.horizon.obstacles[0].xPos-runner.tRex.xPos-runner.tRex.SPRITE_SIZE));
 				$('#size').text('Size: ' + Math.ceil(150-runner.horizon.obstacles[0].yPos));
 			} else {
 				$('#distance').text('Distance: NaN');
 				$('#size').text('Size: NaN');
 			}
-			$('#speed').text('Speed: ' + Math.ceil(runner.currentSpeed));
+			$('#speed').text('Speed: ' + round(runner.currentSpeed, 5));
 			$('#output').text('Output: ' + currentOutput);
 			$('#action').text('Action: ' + getDiscreteStateName(currentOutput));
 
@@ -43,6 +43,10 @@ var getDiscreteStateName = function(value) {
   }
 
   return "none";
+}
+
+var round = function(value, decimals) {
+  return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
 //always scroll to bottom on logs

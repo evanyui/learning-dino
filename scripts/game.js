@@ -1488,6 +1488,7 @@
         this.spritePos = spritePos;
         this.xPos = 0;
         this.yPos = 0;
+				this.SPRITE_SIZE = 32;
         // Position when on the ground.
         this.groundYPos = 0;
         this.currentFrame = 0;

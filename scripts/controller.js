@@ -6,12 +6,12 @@ var currentOutput;
 //a callback to start a new game after dead or not started
 var startNewGame = function(next) {
   setTimeout(function() {
-    // Once reloaded we wait 0.5sec for it to let us start the game with a space.
+    // Once reloaded we wait 0.2sec for it to let us start the game with a space.
 		$(this).trigger(jump_e);
    	runner.onKeyDown(jump_e);
 		runner.restart();
 		next && next();
-  }, 500);
+  }, 200);
 
 }
 
