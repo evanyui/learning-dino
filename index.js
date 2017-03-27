@@ -1,5 +1,5 @@
 $(document).ready(function() {
-		Learn.init(12, 4, 0.2);
+		Learn.init(12, 4, 0.5);
 		Learn.startLearning();
 
 		//UI update
@@ -9,7 +9,7 @@ $(document).ready(function() {
 			$('#gameStatus').text('Status: ' + playing);
 			$('#generation').text('Generation: ' + Learn.generation);
 			$('#genome').text('Genome: #' + Learn.genome + ' / ' + Learn.genomeUnits);
-			$('#mutation').text('Mutation Prob: ' + Learn.mutationProb);
+			$('#mutation').text('Mutation Prob: ' + Learn.mutationProb*100 + '%');
 			$('#fitness').text('Fitness: ' + Math.ceil(runner.distanceRan));
 			$('#fittest').text('Current Fittest: ' + Math.ceil(Learn.currentFittest));
 			$('#prevFittest').text('Previous Fittest: ' + Math.ceil(Learn.prevFittest));
