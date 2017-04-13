@@ -71,7 +71,7 @@ html, body {
 	margin-top: 20px;
 	padding: 20px;
 	width: 20%;
-	height: 315px;
+	height: 310px;
 	border: 1px solid rgba(83,83,83,1);
   border-radius: 5px;
 }
@@ -82,13 +82,17 @@ html, body {
 	margin-top: 20px;
 	padding: 20px;
 	width: 40%;
-	height: 315px;
+	height: 310px;
 	border: 1px solid rgba(83,83,83,1);
   border-radius: 5px;
 }
 
 .generation-box p, .network-box p, .log-box p {
 	margin: 4px;
+}
+
+#generation {
+	font-weight: bold;
 }
 
 .genomes, .logs {
@@ -108,6 +112,11 @@ html, body {
 
 li {
 	margin: 2px;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
 }
 
 

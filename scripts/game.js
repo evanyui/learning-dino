@@ -54,6 +54,9 @@
 
         this.playCount = 0;
 
+				//act as fitness for tRex
+				this.jumpCount = 0;
+
         // Sound FX.
         this.audioBuffer = null;
         this.soundFx = {};
@@ -495,6 +498,8 @@
             this.tRex.playingIntro = false;
             this.containerEl.style.webkitAnimation = '';
             this.playCount++;
+						//reset jumpCount
+						this.jumpCount = 0;
 
             // Handle tabbing off the page. Pause the current game.
             document.addEventListener(Runner.events.VISIBILITY,
@@ -813,6 +818,7 @@
         restart: function () {
             if (!this.raqId) {
                 this.playCount++;
+								this.jumpCount = 0;
                 this.runningTime = 0;
                 this.playing = true;
                 this.crashed = false;
@@ -1250,6 +1256,7 @@
         this.collisionBoxes = [];
         this.gap = 0;
         this.speedOffset = 0;
+				this.jumped = false;
 
         // For animated obstacles.
         this.currentFrame = 0;
@@ -1371,6 +1378,14 @@
                         }
                     }
                     this.draw();
+
+										//Check if tRex has jump over it
+										if(this.xPos < runner.tRex.xPos && !this.jumped) {
+											this.jumped = true;
+											runner.jumpCount++;
+											//remove head, this
+											runner.obstacles.splice(0,1);
+										}
 
                     if (!this.isVisible()) {
                         this.remove = true;

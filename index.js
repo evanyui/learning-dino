@@ -1,18 +1,23 @@
 $(document).ready(function() {
+		//Parameter:
+		//	population, numbers select to crossOver, mutation probability
 		Learn.init(12, 4, 0.5);
 		Learn.startLearning();
 
 		//UI update
 		setInterval(function() {
+			//debug
+			// console.log(runner.horizon.obstacles);
 
 			var playing = runner.playing? "Playing" : "Stop";
 			$('#gameStatus').text('Status: ' + playing);
 			$('#generation').text('Generation: ' + Learn.generation);
 			$('#genome').text('Genome: #' + Learn.genome + ' / ' + Learn.genomeUnits);
 			$('#mutation').text('Mutation Prob: ' + Learn.mutationProb*100 + '%');
-			$('#fitness').text('Fitness: ' + runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan)));
-			$('#fittest').text('Current Fittest: ' + Math.ceil(Learn.currentFittest));
-			$('#prevFittest').text('Previous Fittest: ' + Math.ceil(Learn.prevFittest));
+			// $('#fitness').text('Fitness: ' + runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan)));
+			$('#fitness').text('Fitness (jumped over): ' + runner.jumpCount);
+			$('#fittest').text('Current Fittest: ' + Learn.currentFittest);
+			$('#prevFittest').text('Previous Fittest: ' + Learn.prevFittest);
 			$("#genomes").empty();
 			Learn.genomes.forEach(function(genome) {
 				$("#genomes").append('<li>Genome #'+(Learn.genomes.indexOf(genome)+1)+': '+Math.ceil(genome.fitness)+'</li>');
@@ -25,7 +30,7 @@ $(document).ready(function() {
 				$('#size').text('Size: NaN');
 			}
 			$('#speed').text('Speed: ' + round(runner.currentSpeed, 5));
-			$('#output').text('Output: ' + currentOutput);
+			$('#output').text('Output: ' + round(currentOutput, 10));
 			$('#action').text('Action: ' + getDiscreteStateName(currentOutput));
 
 			scrollDownLog();
@@ -58,6 +63,7 @@ var scrollDownLog = function (){
 //write log function
 var prevMsgs = "";
 var dotCount = 1;
+var dotLength = 5;
 var write = function(msgs) {
 	if(msgs!=prevMsgs) {
 		$("#logs").append('<li>'+msgs+'</li>');
@@ -67,7 +73,7 @@ var write = function(msgs) {
 			$("#logs li:last-child").append('.');
 		}
 		dotCount++;
-		if(dotCount > 3) {
+		if(dotCount > dotLength) {
 			dotCount = 1;
 		}
 

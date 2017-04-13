@@ -2,6 +2,8 @@ var jump_e = $.Event("keydown", { keyCode: 32});
 var down_e = $.Event("keydown", { keyCode: 40});
 var none_e = $.Event("keydown", { keyCode: 0});
 var currentOutput;
+var pass = 0;
+
 
 //a callback to start a new game after dead or not started
 var startNewGame = function(next) {
@@ -12,7 +14,6 @@ var startNewGame = function(next) {
 		runner.restart();
 		next && next();
   }, 200);
-
 }
 
 //using output from neural network to make action

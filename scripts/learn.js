@@ -2,6 +2,7 @@ var	Network = synaptic.Network,
 		Architect = synaptic.Architect,
 		computation;
 
+//DEBUG
 // $(document).ready(function() {
 //     $(this).on('keydown', function(event) {
 //         if (event.keyCode == 13) { //enter pressed
@@ -10,8 +11,13 @@ var	Network = synaptic.Network,
 //     });
 // })
 
-//TODO: (1) Neural network change too smaller.
-//			(2) Implement check experience gain.
+//TODO: (1) UI
+//			(2) Compare fitness with parents
+//			(3)	Check Converge, if always 0, then make 2nd tier decision.
+//			(4) Train by user inputs
+//			(5) Optimization (threading?)
+//			(6) Finding the best mutation and crossOver
+
 var Learn = {
 
   // Array of networks for generation ith Genomes
@@ -20,11 +26,15 @@ var Learn = {
   // Current runnning genome/generation/fittest so far/fittest from last generation
   genome: 0,
   generation: 0,
+
 	currentFittest: 0,
 	prevFittest: 0,
 
+	mutationCount: 0,
+	crossCount: 0,
+
   // Set this, to verify genome experience BEFORE running it
-  shouldCheckExperience: false,
+  shouldCheckExperience: true,
 
 };
 
@@ -75,18 +85,21 @@ $(document).ready(function() {
 	  Learn.genome = 0;
 
 	  async.mapSeries(Learn.genomes, Learn.executeGenome, function (argument) {
+			//clear logs for optimization
+			$("#logs").empty();
 
 	    // Kill worst genomes
 	    Learn.genomes = Learn.selectBestGenomes(Learn.selection);
 
 	    // Copy best genomes
 	    var bestGenomes = _.clone(Learn.genomes);
-			prevFittest = bestGenomes[0].fitness;
+			Learn.prevFittest = bestGenomes[0].fitness;
 
 			// For UI purposes, clear the genomes
 			Learn.genomes = [];
 
 	    // Cross Over
+			Learn.crossCount = 0;
 	    while (Learn.genomes.length < Learn.genomeUnits - 2) {
 	      // Get two random Genomes
 	      var genA = _.sample(bestGenomes).toJSON();
@@ -94,14 +107,19 @@ $(document).ready(function() {
 
 	      // Cross over and Mutate
 	      var newGenome = Learn.mutate(Learn.crossOver(genA, genB));
+				var newGenome2 = Learn.crossOver(genA, genB);
 
 	      // Add to generation
 	      Learn.genomes.push(Network.fromJSON(newGenome));
+				Learn.genomes.push(Network.fromJSON(newGenome2));
 
-				write("Crossed new genome");
+				Learn.crossCount+=2;
+
 	    }
+			write("Crossed " + Learn.crossCount + " new genome");
 
 	    // Mutation-only
+			Learn.mutationCount = 0;
 	    while (Learn.genomes.length < Learn.genomeUnits) {
 	      // Get one random Genomes
 	      var gen = _.sample(bestGenomes).toJSON();
@@ -112,8 +130,9 @@ $(document).ready(function() {
 	      // Add to generation
 	      Learn.genomes.push(Network.fromJSON(newGenome));
 
-				write("Mutated new genome");
+				Learn.mutationCount++;
 	    }
+			write("Mutated " + Learn.mutationCount + " new genome");
 
 			write("=====================================");
 
@@ -123,10 +142,9 @@ $(document).ready(function() {
 	}
 
 	// Sort all the genomes, and delete the worst one
-	// untill the genome list has selectN elements.
+	// until the genome list has selectN elements.
 	Learn.selectBestGenomes = function (selectN){
 	  var selected = _.sortBy(Learn.genomes, 'fitness').reverse();
-
 	  while (selected.length > selectN) {
 	    selected.pop();
 	  }
@@ -210,24 +228,25 @@ $(document).ready(function() {
 		write("<b>Execute genome #" + (Learn.genomes.indexOf(genome)+1) + "</b>");
 	  Learn.genome = Learn.genomes.indexOf(genome) + 1;
 
-	  // Check if genome has AT LEAST some experience
-	  // if (Learn.shouldCheckExperience) {
-	  //   if (!Learn.checkExperience(genome)) {
-	  //     genome.fitness = 0;
-	  //     // Learn.ui.logger.log('Genome '+Learn.genome+' has no min. experience');
-	  //     return next();
-	  //   }
-	  // }
 
+		var prevAction = null;
+		Learn.oneKey = true;
 		computation = setInterval(function(){
 
+			// If dinosaur crashed or not playing
 			if(!runner.playing || runner.crashed) {
 
 				write("Ended");
 				clearInterval(computation);
 
+				//Check if the genome only press one key, that doesn't count
+				if(Learn.oneKey) {
+					genome.fitness = 0;
+				} else {
 				//fitness is the distance trex ran in pixel
-				genome.fitness = runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan));
+					// genome.fitness = runner.distanceMeter.getActualDistance(Math.ceil(runner.distanceRan));
+					genome.fitness = runner.jumpCount;
+				}
 				write("Result: " + genome.fitness);
 
 				if(genome.fitness > Learn.currentFittest) {
@@ -240,6 +259,7 @@ $(document).ready(function() {
 		    startNewGame(next);
 			}
 
+			//ELSE, dinosaur computes neural network and make action
 			write("Computing network...");
 			var inputs;
 			if(runner.horizon.obstacles.length>0) {
@@ -259,31 +279,14 @@ $(document).ready(function() {
 			// Apply to network
 			var outputs = genome.activate(inputs);
 			setGameOutput(outputs[0]);
-		}, 1000/60);
+			if(getDiscreteState(outputs[0]) != prevAction) {
+				Learn.oneKey = false;
+			}
+			prevAction = getDiscreteState(outputs[0]);
+
+
+		}, 1000/30);
 
 	}
 
-	// // Validate if any acction occur uppon a given input (in this case, distance).
-	// // If genome only keeps a single activation value for any given input,
-	// // it will return false
-	// Learn.checkExperience = function (genome) {
-	//
-	//   var step = 0.1, start = 0.0, stop = 1;
-	//
-	//   // Inputs are default. We only want to test the first index
-	//   var inputs = [0.0, 0.3, 0.2];
-	//   var activation, state, outputs = {};
-	//
-	//   for (var k = start; k < stop; k += step) {
-	//     inputs[0] = k;
-	//
-	//     activation = genome.activate(inputs);
-	//     state = Learn.gm.getDiscreteState(activation);
-	//
-	//     outputs[state] = true;
-	//   }
-	//
-	//   // Count states, and return true if greater than 1
-	//   return _.keys(outputs).length > 1;
-	// }
 });
