@@ -4,6 +4,9 @@ var none_e = $.Event("keydown", { keyCode: 0});
 var currentOutput;
 var pass = 0;
 
+var DUCK_BOUND = 0.40;
+var JUMP_BOUND = 0.60;
+
 
 //a callback to start a new game after dead or not started
 var startNewGame = function(next) {
@@ -25,9 +28,9 @@ var setGameOutput = function (output) {
 }
 
 var getDiscreteState = function (value){
-  if (value < 0.45) {
+  if (value < DUCK_BOUND) {
     return down_e;
-  } else if(value > 0.55) {
+  } else if(value > JUMP_BOUND) {
     return jump_e;
   }
 
