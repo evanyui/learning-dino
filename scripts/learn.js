@@ -33,6 +33,8 @@ var Learn = {
 	mutationCount: 0,
 	crossCount: 0,
 
+	watchYouPlay: false,
+
   // Set this, to verify genome experience BEFORE running it
   shouldCheckExperience: true,
 
@@ -223,6 +225,8 @@ $(document).ready(function() {
 	// 2) On data read, applies the neural network, and
 	//    set it's output
 	// 3) When the game has ended and compute the fitness
+	//
+	//TODO: add-ones: watch you play
 	Learn.executeGenome = function (genome, next){
 		write("-------------------------------------");
 		write("<b>Execute genome #" + (Learn.genomes.indexOf(genome)+1) + "</b>");
@@ -286,7 +290,22 @@ $(document).ready(function() {
 
 
 		}, 1000/30);
-
 	}
+
+	// Load genomes saved from JSON file
+	// Parameter: genomes array, boolean to delete current genomes
+	// Learn.loadGenomes = function (genomes, delete){
+	//   if (delete) {
+	//     Learn.genomes = [];
+	//   }
+	//
+	//   var loaded = 0;
+	//   for (var k in genomes) {
+	//     Learn.genomes.push(Network.fromJSON(genomes[k]));
+	//     loaded++;
+	//   }
+	//
+	//   write('Loaded ' + loaded + ' genomes');
+	// }
 
 });
